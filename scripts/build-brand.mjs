@@ -137,7 +137,6 @@ write("wordmark-mono-black.svg", svg(WM_W, 16, "", wordmarkBody("#0B0D10")));
 {
   const s = 64 / 845;
   const h = 447 * s; // ≈ 33.8
-  const ty = ((64 - h) / 2).toFixed(1);
   const body = `<g transform="scale(${s.toFixed(5)}) translate(0,${((64 / s - 447) / 2).toFixed(1)})">${markBody("url(#mf)")}</g>`;
   write("favicon.svg", svg(64, 64, `<defs>${GRAD("mf", DARK_STOPS)}</defs>\n  `, body));
 }
@@ -148,7 +147,6 @@ write("wordmark-mono-black.svg", svg(WM_W, 16, "", wordmarkBody("#0B0D10")));
   const scaledW = 845 * s; // 56
   const scaledH = 447 * s; // ≈ 29.7
   const tx = ((64 - scaledW) / 2).toFixed(1);
-  const ty = ((64 - scaledH) / 2).toFixed(1);
   const body = `<g transform="translate(${tx},${ty}) scale(${s.toFixed(5)})">${markBody("url(#ms)")}</g>`;
   write("social-avatar.svg", svg(64, 64, `<defs>${GRAD("ms", DARK_STOPS)}</defs>\n  `, body));
 }

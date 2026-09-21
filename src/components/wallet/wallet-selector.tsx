@@ -103,11 +103,18 @@ export function WalletSelector() {
     setErrorMsg("");
     try {
       if (w.adapter.name !== activeName) {
-        setStatus("connect");
+        setStatus("connecting");
         await select(w.adapter.name);
+        // connect() closes over the previously selected wallet state, which
+        // has not re-rendered yet after select() — the first connect click
+        // would race it and fail with "COULDN'T CONNECT". Drive the adapter
+        // directly instead; the provider updates its state from the adapter's
+        // own 'connect' event.
+        await w.adapter.connect();
+      } else {
+        setStatus("connecting");
+        await connect();
       }
-      setStatus("connecting");
-      await connect();
     } catch (err) {
       const e = err as { name?: string; message?: string };
       const rejected =

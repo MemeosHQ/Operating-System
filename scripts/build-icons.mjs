@@ -12,7 +12,7 @@
  * Run after build-brand.mjs:  node scripts/build-icons.mjs
  */
 import sharp from "sharp";
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const BRAND = join(process.cwd(), "public", "brand");
