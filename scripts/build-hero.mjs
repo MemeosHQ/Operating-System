@@ -122,12 +122,12 @@ s = svgWrap(s);
 function svgWrap(body) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
   <defs>
-    <radialGradient id="atmo" cx="0.72" cy="0.3" r="1">
+    <radialGradient color-interpolation="sRGB" id="atmo" cx="0.72" cy="0.3" r="1">
       <stop offset="0" stop-color="#14082E"/>
       <stop offset="0.55" stop-color="#0A0714"/>
       <stop offset="1" stop-color="#050608"/>
     </radialGradient>
-    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+    <radialGradient color-interpolation="sRGB" id="halo" cx="0.5" cy="0.5" r="0.5">
       <stop offset="0" stop-color="#A855F7" stop-opacity="0.5"/>
       <stop offset="1" stop-color="#A855F7" stop-opacity="0"/>
     </radialGradient>

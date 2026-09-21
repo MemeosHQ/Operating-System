@@ -34,7 +34,7 @@ const MARK_PATHS = [
 ];
 
 const GRAD = (id, stops) =>
-  `<linearGradient id="${id}" x1="0" y1="1" x2="0.85" y2="0">
+  `<linearGradient color-interpolation="sRGB" id="${id}" x1="0" y1="1" x2="0.85" y2="0">
     ${stops.map(([o, c]) => `<stop offset="${o}" stop-color="${c}"/>`).join("\n    ")}
   </linearGradient>`;
 
@@ -145,7 +145,8 @@ write("wordmark-mono-black.svg", svg(WM_W, 16, "", wordmarkBody("#0B0D10")));
 {
   const s = 56 / 845;
   const scaledW = 845 * s; // 56
-  const scaledH = 447 * s; // ≈ 29.7
+  const scaledH = 447 * s;
+  const ty = ((64 - scaledH) / 2).toFixed(1);
   const tx = ((64 - scaledW) / 2).toFixed(1);
   const body = `<g transform="translate(${tx},${ty}) scale(${s.toFixed(5)})">${markBody("url(#ms)")}</g>`;
   write("social-avatar.svg", svg(64, 64, `<defs>${GRAD("ms", DARK_STOPS)}</defs>\n  `, body));

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="MEMEOS">
-  <defs><linearGradient id="mf" x1="0" y1="1" x2="0.85" y2="0">
+  <defs><linearGradient color-interpolation="sRGB" id="mf" x1="0" y1="1" x2="0.85" y2="0">
     <stop offset="0" stop-color="#7C6AF0"/>
     <stop offset="0.35" stop-color="#A855F7"/>
     <stop offset="0.62" stop-color="#C13FE4"/>
