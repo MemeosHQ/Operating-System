@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70.4 16" width="70.4" height="16" role="img" aria-label="MEMEOS">
+  <g fill="none" stroke="#3B1D8F" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 1 14.5 V 1.5 L 6 8 L 11 1.5 V 14.5"/>
+    <path d="M 18.5 1.5 H 11 V 14.5 H 18.5 M 11 8 H 16.5"/>
+    <path d="M 25.5 14.5 V 1.5 L 30.5 8 L 35.5 1.5 V 14.5"/>
+    <path d="M 43 1.5 H 35.5 V 14.5 H 43 M 35.5 8 H 41"/>
+    <path d="M 53 1.7 C 55.8 1.7 57.4 3.2 57.4 8 C 57.4 12.8 55.8 14.3 53 14.3 C 50.2 14.3 48.6 12.8 48.6 8 C 48.6 3.2 50.2 1.7 53 1.7 Z"/>
+    <path d="M 68.4 3.4 C 68.4 1.9 67 1.5 64.8 1.5 C 62.7 1.5 61.3 2.3 61.3 4 C 61.3 5.9 63 6.4 64.7 6.9 C 66.5 7.4 68.3 7.9 68.3 10 C 68.3 12.3 66.8 14.5 64.7 14.5 C 62.5 14.5 61.2 13.4 61.2 11.8"/>
+  </g>
+</svg>

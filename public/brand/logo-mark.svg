@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 845 447" width="845" height="447" role="img" aria-label="MEMEOS">
+  <defs><linearGradient id="mo" x1="0" y1="1" x2="0.85" y2="0">
+    <stop offset="0" stop-color="#7C6AF0"/>
+    <stop offset="0.35" stop-color="#A855F7"/>
+    <stop offset="0.62" stop-color="#C13FE4"/>
+    <stop offset="1" stop-color="#43104F"/>
+  </linearGradient></defs>
+  <path d="M0 237 H150 V447 H0 Z" fill="url(#mo)"/>
+  <path d="M150 79 H265 Q275 215 355 240 V282 Q255 300 210 447 H150 Z" fill="url(#mo)"/>
+  <path d="M355 0 A490 447 0 0 1 845 447 H565 Q490 285 448 233 V447 H355 Z" fill="url(#mo)"/>
+</svg>

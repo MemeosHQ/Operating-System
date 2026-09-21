@@ -1,0 +1,304 @@
+// MEMEOS persistent intelligence layer (PostgreSQL / Supabase)
+// Every persisted row carries `sourceMode` (DEMO | LIVE) so demo fixtures can
+// never be confused with live history. No destructive operations are used.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SourceMode {
+  DEMO
+  LIVE
+}
+
+/// Current + historical token state (one row per token, refreshed by pipeline).
+model Token {
+  id                String   @id @default(cuid())
+  address           String   @unique
+  ticker            String
+  name              String
+  narrativeTag      String
+  marketCapUsd      Float    @default(0)
+  priceUsd          Float    @default(0)
+  liquidityUsd      Float    @default(0)
+  volume24hUsd      Float    @default(0)
+  holders           Int?
+  priceChange24hPct Float    @default(0)
+  ageMinutes        Float    @default(0)
+  sourceMode        SourceMode
+  source            String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  snapshots        TokenSnapshot[]
+  attentionHistory AttentionSnapshot[]
+  walletActivities WalletActivity[]
+  relationships    WalletRelationship[]
+
+  @@index([narrativeTag])
+  @@index([sourceMode])
+  @@index([updatedAt])
+}
+
+/// Historical token state (price/mcap/liquidity/volume/txns/holders).
+model TokenSnapshot {
+  id                String     @id @default(cuid())
+  tokenId           String
+  priceUsd          Float
+  marketCapUsd      Float
+  liquidityUsd      Float
+  volume24hUsd      Float
+  txns24h           Int?
+  holders           Int?
+  priceChange24hPct Float
+  holdersIsProxy    Boolean    @default(true)
+  sourceMode        SourceMode
+  source            String
+  calcVersion       String     @default("v1")
+  capturedAt        DateTime   @default(now())
+  token             Token      @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@index([tokenId, capturedAt])
+  @@index([capturedAt])
+}
+
+/// Attention history — from the existing attention engine formulas.
+model AttentionSnapshot {
+  id                 String     @id @default(cuid())
+  tokenId            String?
+  tokenAddress       String
+  narrativeTag       String
+  attentionVelocity  Float
+  velocityMultiplier Float
+  volumeDeltaPct     Float
+  buyerDeltaPct      Float
+  state              String
+  sourceMode         SourceMode
+  calcVersion        String     @default("v1")
+  capturedAt         DateTime   @default(now())
+  token              Token?     @relation(fields: [tokenId], references: [id], onDelete: SetNull)
+
+  @@index([tokenAddress, capturedAt])
+  @@index([narrativeTag, capturedAt])
+  @@index([capturedAt])
+}
+
+/// Historical Meme DNA dimensions (score + basis; proxy stays labeled proxy).
+model DnaSnapshot {
+  id           String     @id @default(cuid())
+  tokenAddress String
+  dimension    String
+  score        Float
+  basis        String
+  isProxy      Boolean    @default(false)
+  sourceMode   SourceMode
+  calcVersion  String     @default("v1")
+  capturedAt   DateTime   @default(now())
+
+  @@index([tokenAddress, dimension, capturedAt])
+  @@index([tokenAddress, capturedAt])
+}
+
+/// Real Pump.fun launches.
+model Launch {
+  id             String     @id @default(cuid())
+  address        String     @unique
+  ticker         String
+  name           String
+  creatorAddress String?
+  createdAtMs    BigInt
+  marketCapUsd   Float      @default(0)
+  status         String
+  narrativeTag   String
+  firstBuyer     String?
+  sourceMode     SourceMode
+  source         String
+  archived       Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+
+  events LaunchEvent[]
+  creator Creator?  @relation(fields: [creatorAddress], references: [address], onDelete: SetNull)
+
+  @@index([creatorAddress])
+  @@index([createdAtMs])
+  @@index([narrativeTag])
+}
+
+/// Observed launch events only — the first 60s comes from real provider data.
+model LaunchEvent {
+  id         String     @id @default(cuid())
+  launchId   String
+  tSeconds   Int
+  kind       String
+  label      String
+  detail     String?
+  buyer      String?
+  solAmount  Float?
+  signature  String?
+  sourceMode SourceMode
+  launch     Launch     @relation(fields: [launchId], references: [id], onDelete: Cascade)
+
+  @@index([launchId, tSeconds])
+  @@unique([launchId, tSeconds, kind, label])
+}
+
+/// Wallets observed via Helius Enhanced Transactions.
+model Wallet {
+  id          String   @id @default(cuid())
+  address     String   @unique
+  labels      String[]
+  solBalance  Float?
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+  sourceMode  SourceMode
+
+  activities    WalletActivity[]
+  relationsFrom WalletRelationship[] @relation("relFromWallet")
+  relationsTo   WalletRelationship[] @relation("relToWallet")
+  agentSignals  AgentSignal[]
+  agents        Agent[]
+
+  @@index([address])
+}
+
+/// Parsed wallet activity (no keys, no signing data — observability only).
+model WalletActivity {
+  id           String     @id @default(cuid())
+  walletId     String
+  tokenAddress String?
+  signature    String
+  action       String
+  solAmount    Float?
+  tokenAmount  Float?
+  atMs         BigInt
+  sourceMode   SourceMode
+  source       String     @default("helius:enhanced-tx")
+  seenAt       DateTime   @default(now())
+  wallet       Wallet     @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  token        Token?     @relation(fields: [tokenAddress], references: [address], onDelete: SetNull)
+
+  @@unique([walletId, signature])
+  @@index([walletId, atMs])
+  @@index([tokenAddress, atMs])
+  @@index([atMs])
+}
+
+/// Wallet graph edges — ONLY from real observed evidence.
+model WalletRelationship {
+  id           String     @id @default(cuid())
+  fromWalletId String
+  toWalletId   String?
+  tokenAddress String?
+  relType      String
+  evidence     String
+  signature    String?
+  sourceMode   SourceMode
+  observedAt   DateTime   @default(now())
+  fromWallet   Wallet     @relation("relFromWallet", fields: [fromWalletId], references: [id], onDelete: Cascade)
+  toWallet     Wallet?    @relation("relToWallet", fields: [toWalletId], references: [id], onDelete: SetNull)
+  token        Token?     @relation(fields: [tokenAddress], references: [address], onDelete: SetNull)
+
+  @@index([fromWalletId])
+  @@index([toWalletId])
+  @@index([tokenAddress])
+  @@unique([fromWalletId, toWalletId, tokenAddress, relType])
+}
+
+/// Narrative registry + historical snapshots.
+model Narrative {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  name        String
+  description String
+  sourceMode  SourceMode
+  createdAt   DateTime   @default(now())
+
+  snapshots NarrativeSnapshot[]
+}
+
+model NarrativeSnapshot {
+  id                String     @id @default(cuid())
+  narrativeId       String
+  slug              String
+  tokenCount        Int
+  volume24hUsd      Float
+  txns24h           Int?
+  activeWallets     Int?
+  attentionDeltaPct Float
+  newLaunches24h    Int
+  holderGrowthPct   Float?
+  sourceMode        SourceMode
+  calcVersion       String     @default("v1")
+  capturedAt        DateTime   @default(now())
+  narrative         Narrative  @relation(fields: [narrativeId], references: [id], onDelete: Cascade)
+
+  @@index([slug, capturedAt])
+  @@index([capturedAt])
+}
+
+/// Creator intelligence from actual launch data.
+model Creator {
+  id            String     @id @default(cuid())
+  address       String     @unique
+  launchCount   Int        @default(0)
+  firstLaunchMs BigInt?
+  lastLaunchMs  BigInt?
+  narratives    String[]
+  sourceMode    SourceMode
+  updatedAt     DateTime   @updatedAt
+
+  launches     Launch[]
+  agentSignals AgentSignal[]
+
+  @@index([address])
+}
+
+/// Agent-like detection — cautious, evidence-backed only.
+model Agent {
+  id          String   @id @default(cuid())
+  walletId    String   @unique
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  label       String
+  confidence  Float
+  evidence    String[]
+  firstSeenAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  signals AgentSignal[]
+}
+
+/// Individual detection signals feeding an Agent (or standalone observations).
+model AgentSignal {
+  id         String   @id @default(cuid())
+  walletId   String
+  agentId    String?
+  signalType String
+  detail     String
+  confidence Float
+  observedAt DateTime @default(now())
+  wallet     Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  agent      Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  creator    Creator? @relation(fields: [creatorAddress], references: [address], onDelete: SetNull)
+  creatorAddress String?
+
+  @@index([walletId])
+  @@index([signalType])
+}
+
+/// Server-side watchlists keyed by connected wallet address.
+model Watchlist {
+  id            String   @id @default(cuid())
+  walletAddress String
+  kind          String
+  itemId        String
+  label         String
+  createdAt     DateTime @default(now())
+
+  @@unique([walletAddress, kind, itemId])
+  @@index([walletAddress])
+}

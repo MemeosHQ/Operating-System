@@ -1,0 +1,345 @@
+@import "tailwindcss";
+
+@theme {
+  /* Layered dark system: background → elevated → active → data */
+  --color-void: #050608;
+  --color-surface: #0b0d10;
+  --color-surface2: #101318;
+  --color-edge: #181c22;
+  --color-edge2: #232932;
+  --color-ink: #e9ebef;
+  --color-muted: #8c93a0;
+  --color-faint: #586069;
+  --color-accent: #7b61ff;
+  --color-accent-soft: #a18dff;
+  --color-signal: #38bdf8;
+  --color-live: #14f195;
+  --color-up: #2fd38a;
+  --color-down: #ff5d6c;
+  --color-warn: #ffb224;
+  --color-attn: #ffb224;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-void);
+  color: var(--color-ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(ellipse 90% 42% at 50% -12%, rgba(123, 97, 255, 0.055), transparent),
+    radial-gradient(ellipse 60% 34% at 88% 4%, rgba(56, 189, 248, 0.035), transparent),
+    linear-gradient(rgba(255, 255, 255, 0.011) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 44px;
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(123, 97, 255, 0.35);
+}
+
+/* Scrollbars — quiet, terminal-like */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #232930 transparent;
+}
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #232930;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Keyboard focus — visible but quiet */
+:focus-visible {
+  outline: 1px solid rgba(161, 141, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.live-dot {
+  animation: pulse-dot 2.2s ease-in-out infinite;
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise-in {
+  animation: rise-in 0.35s ease-out both;
+}
+
+/* Attention Field node breath — used on canvas via JS, here for DOM marks */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.18); opacity: 1; }
+}
+.breathe {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+/* Hairline data rows — the core "not a card" pattern */
+.row-sep {
+  border-bottom: 1px solid var(--color-edge);
+}
+.row-sep:last-child {
+  border-bottom: 0;
+}
+
+/* Restrained intelligence glow — reserved for active/hero moments */
+.glow-accent {
+  box-shadow: 0 0 0 1px rgba(123, 97, 255, 0.28), 0 0 32px rgba(123, 97, 255, 0.10);
+}
+.glow-live {
+  box-shadow: 0 0 0 1px rgba(20, 241, 149, 0.22), 0 0 24px rgba(20, 241, 149, 0.08);
+}
+.glow-signal {
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.30), 0 0 28px rgba(56, 189, 248, 0.12);
+}
+
+/* Shimmer — premium loading, not a spinner */
+@keyframes shimmer {
+  0% { background-position: -420px 0; }
+  100% { background-position: 420px 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface2) 0%,
+    #1a2029 45%,
+    var(--color-surface2) 90%
+  );
+  background-size: 420px 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* Glass surface — used sparingly for overlays/drawers */
+.glass {
+  background: rgba(11, 13, 16, 0.78);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+}
+
+/* Signal line — thin animated line used in loading/story states */
+@keyframes signal-line {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+.signal-line {
+  position: relative;
+  overflow: hidden;
+}
+.signal-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.7), transparent);
+  animation: signal-line 1.8s ease-in-out infinite;
+}
+
+/* ✦ MEMEOS AI control — breathing dual-accent glow */
+@keyframes ai-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(123, 97, 255, 0.45), 0 0 14px rgba(123, 97, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.55), 0 0 24px rgba(56, 189, 248, 0.4);
+  }
+}
+.ai-glow {
+  animation: ai-glow 3.2s ease-in-out infinite;
+}
+
+/* Soft rising pulse — used for empty-state "listening" visual */
+@keyframes soft-ping {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  80%, 100% { transform: scale(2.2); opacity: 0; }
+}
+.soft-ping {
+  animation: soft-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ── MEME UNIVERSE ─────────────────────────────────────────── */
+
+/* Film-grain noise over the universe — makes the dark canvas feel material */
+.noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* Floating token object */
+.universe-node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.2s ease;
+}
+.universe-node:hover {
+  filter: brightness(1.25);
+  z-index: 20;
+}
+.universe-node .node-orb {
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease;
+}
+.universe-node:hover .node-orb {
+  transform: scale(1.14);
+}
+
+/* Stream events flowing in */
+@keyframes stream-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stream-item {
+  animation: stream-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Cinematic intro */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.fade-up-d1 { animation-delay: 0.08s; }
+.fade-up-d2 { animation-delay: 0.18s; }
+.fade-up-d3 { animation-delay: 0.3s; }
+
+/* Intelligence drawer */
+@keyframes drawer-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.drawer-panel {
+  animation: drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── LANDING 3.0 ───────────────────────────────────────────── */
+
+/* Scroll reveal — premium entrance, disabled to instant under reduced motion */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Bars grow when their Reveal parent becomes visible */
+.bar-grow {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-in .bar-grow,
+.bar-grow.bar-grow-in {
+  transform: scaleX(1);
+}
+
+/* Decorative marquee (slow, linear) */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 46s linear infinite;
+  width: max-content;
+}
+
+/* AI command caret */
+@keyframes caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.caret-blink {
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+
+/* Wallet-flow SVG draws itself in (landing wallet intelligence) */
+@keyframes flow-draw {
+  from { stroke-dashoffset: 240; }
+  to { stroke-dashoffset: 0; }
+}
+.flow-draw {
+  animation: flow-draw 1.6s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-dot, .rise-in, .breathe, .stream-item, .fade-up, .drawer-panel, .ai-glow,
+  .marquee-track, .caret-blink, .flow-draw {
+    animation: none;
+  }
+  .flow-draw {
+    stroke-dashoffset: 0;
+  }
+  .reveal, .bar-grow {
+    transition: none;
+  }
+  .universe-node .node-orb {
+    transition: none;
+  }
+}
+
+
+
+
+
+/* Official MEMEOS logo - subtle signal pulse (reduced-motion safe) */
+@media (prefers-reduced-motion: no-preference) {
+  .m-logo-outer { animation: m-logo-pulse 2.6s ease-in-out infinite; }
+  @keyframes m-logo-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+}
+
+
+/* MEMEOS boot loader - intelligence system initialization */
+.m-boot-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; }
+.m-boot-logo { position: relative; display: flex; align-items: center; justify-content: center; }
+.m-boot-logo::before { content: ""; position: absolute; inset: -46px; border-radius: 9999px; background: radial-gradient(ellipse, rgba(123, 97, 255, 0.14), transparent 68%); pointer-events: none; }
+.m-boot-sweep { position: absolute; top: 50%; left: 50%; width: 150px; height: 2px; margin: -1px 0 0 -75px; background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.35), transparent); pointer-events: none; }
+.m-boot-word { display: flex; }
+.m-boot-status { font-family: ui-monospace, monospace; font-size: 9.5px; letter-spacing: 0.34em; text-transform: uppercase; color: #5a6172; }
+.m-boot-closing { animation: m-boot-fade 0.45s ease both; }
+@keyframes m-boot-fade { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: no-preference) {
+  .m-boot-mark { animation: m-boot-illuminate 1.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .m-boot-word, .m-boot-status { animation: m-boot-rise 0.9s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .m-boot-sweep { animation: m-boot-pass 1.6s 0.3s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  @keyframes m-boot-illuminate { 0% { opacity: 0.22; filter: brightness(0.55); transform: scale(0.985); } 100% { opacity: 1; filter: brightness(1); transform: scale(1); } }
+  @keyframes m-boot-rise { 0% { opacity: 0; transform: translateY(5px); } 100% { opacity: 1; transform: translateY(0); } }
+  @keyframes m-boot-pass { 0% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-boot-sweep { display: none; }
+}
